@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  app:
+    image: edureport/app:latest
+    build:
+      context: .. # build from repo root
+      dockerfile: deployment/Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app # mount repo root into container
+    # Example usage:
+    # docker compose -f deployment/docker-compose.yml run --rm app php artisan reports:generate student1 diagnostic
+    entrypoint: ["php"]
+    command: ["-v"]
+
+  test:
+    image: edureport/test:latest
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    working_dir: /app
+    volumes:
+      - ..:/app
+    entrypoint: ["bash", "-lc"]
+    command: >
+      "composer install --no-interaction --prefer-dist &&
+       vendor/bin/pest -q"
