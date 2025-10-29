@@ -1,4 +1,4 @@
-name: CI
+name: "EduReport • Lint & Test"
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   tests:
+    name: "Build & Test"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -43,6 +44,11 @@ jobs:
 
       - name: Lint (Pint style check)
         run: vendor/bin/pint --test
+
+      - name: Prepare .env and APP_KEY
+        run: |
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          php artisan key:generate
 
       - name: Run tests (Pest)
         run: vendor/bin/pest -q
