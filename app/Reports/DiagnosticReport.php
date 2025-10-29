@@ -21,7 +21,8 @@ class DiagnosticReport implements ReportStrategy
         $assessmentsById = collect($assessments)->keyBy('id')->all();
 
         $studentName = $this->formatStudentName($student);
-        $assessmentName = $assessmentsById[$latestCompletedAttempt['assessmentId']]['name'] ?? $latestCompletedAttempt['assessmentId'];
+        $assessmentId = $latestCompletedAttempt['assessmentId'];
+        $assessmentName = $assessmentsById[$assessmentId]['name'] ?? $assessmentId;
         $completedAt = $this->dateFormatter->humanReadableFormat($latestCompletedAttempt['completed']);
 
         [$correct, $total, $byStrand] = $this->evaluateAttempt($latestCompletedAttempt, $questionsById);
