@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Reports\DiagnosticReport;
+use App\Reports\ReportStrategy;
 use App\Services\DataLoader;
 use Illuminate\Console\Command;
 
@@ -34,7 +36,7 @@ class GenerateReportCommand extends Command
         $reportTypes = [1 => 'diagnostic', 2 => 'progress', 3 => 'feedback'];
         $reportName = $reportTypes[$reportNumber] ?? null;
 
-        if (! $reportName) {
+        if ($reportName === null) {
             $this->error('Invalid selection. Use 1 for Diagnostic, 2 for Progress, 3 for Feedback.');
 
             return self::INVALID;
@@ -49,6 +51,8 @@ class GenerateReportCommand extends Command
         }
 
         $students = $data['students'] ?? [];
+        $questions = $data['questions'] ?? [];
+        $assessments = $data['assessments'] ?? [];
         $responses = $data['responses'] ?? [];
 
         $student = collect($students)->firstWhere('id', $studentId);
@@ -59,19 +63,29 @@ class GenerateReportCommand extends Command
             return self::INVALID;
         }
 
-        $completedResponses = collect($responses)
-            ->filter(fn ($r) => ($r['student']['id'] ?? null) === $studentId && ! empty($r['completed']))
-            ->values();
+        $strategy = $this->resolveReportStrategy($reportName);
 
-        if ($completedResponses->isEmpty()) {
-            $this->warn("No completed assessments found for student '{$studentId}'.");
+        if (! $strategy) {
+            $this->error("Report '{$reportName}' not implemented yet.");
 
-            return self::SUCCESS;
+            return self::FAILURE;
         }
 
-        $this->info("Found {$student['firstName']} {$student['lastName']} with {$completedResponses->count()} completed attempt(s).");
-        $this->line("Requested report: <info>{$reportName}</info>");
+        $output = $strategy->build($student, $questions, $assessments, $responses);
+
+        $this->line($output);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Map report name to its strategy instance.
+     */
+    private function resolveReportStrategy(string $reportName): ?ReportStrategy
+    {
+        return match ($reportName) {
+            'diagnostic' => app(DiagnosticReport::class),
+            default => null,
+        };
     }
 }
