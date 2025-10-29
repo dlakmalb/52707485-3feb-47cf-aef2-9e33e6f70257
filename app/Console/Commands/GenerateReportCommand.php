@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Reports\DiagnosticReport;
+use App\Reports\FeedbackReport;
 use App\Reports\ProgressReport;
 use App\Reports\ReportStrategy;
 use App\Services\DataLoader;
@@ -87,6 +88,7 @@ class GenerateReportCommand extends Command
         return match ($reportName) {
             'diagnostic' => app(DiagnosticReport::class),
             'progress' => app(ProgressReport::class),
+            'feedback' => app(FeedbackReport::class),
             default => null,
         };
     }

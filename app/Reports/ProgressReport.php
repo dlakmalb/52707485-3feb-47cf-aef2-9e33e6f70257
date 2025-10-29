@@ -81,9 +81,9 @@ class ProgressReport implements ReportStrategy
         $overallCorrect = 0;
         $overallTotal = 0;
 
-        foreach (($attempt['responses'] ?? []) as $resp) {
-            $questionId = $resp['questionId'] ?? null;
-            $givenAnswer = $resp['response'] ?? null;
+        foreach (($attempt['responses'] ?? []) as $responseItem) {
+            $questionId = $responseItem['questionId'] ?? null;
+            $givenAnswer = $responseItem['response'] ?? null;
 
             // Skip if question not found or id missing
             if (! $questionId || ! isset($questionsById[$questionId])) {
