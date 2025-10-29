@@ -10,8 +10,8 @@ services:
     volumes:
       - ..:/app # mount repo root into container
     # Example usage:
-    # docker compose -f deployment/docker-compose.yml run --rm app php artisan reports:generate student1 diagnostic
-    entrypoint: ["php"]
+    # docker compose -f deployment/docker-compose.yml run --rm app php artisan reports:generate student1 1
+    entrypoint: ""
     command: ["-v"]
 
   test:
@@ -24,5 +24,13 @@ services:
       - ..:/app
     entrypoint: ["bash", "-lc"]
     command: >
-      "composer install --no-interaction --prefer-dist &&
-       vendor/bin/pest -q"
+      "set -euo pipefail;
+       composer install --no-interaction --prefer-dist;
+       if [ ! -f .env ]; then
+         if [ -f .env.testing ]; then cp .env.testing .env;
+         elif [ -f .env.example ]; then cp .env.example .env;
+         else touch .env; fi
+       fi;
+       php artisan key:generate --force;
+       php artisan config:clear;
+       vendor/bin/pest"
