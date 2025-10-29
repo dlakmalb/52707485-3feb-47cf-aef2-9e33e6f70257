@@ -1,59 +1,185 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+    <h1>
+        🧠 Assessment Reporting System<br/>
+        <sub><sup><sub>A simple CLI-based Laravel application for generating student assessment reports.</sub></sup></sub><br/>
+    </h1>
+</div>
+<br/>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+The system produces three types of reports using JSON input data: </p>
+&nbsp;&nbsp;&nbsp; 1️⃣ &nbsp; <b>Diagnostic Report</b> - identifies strengths and weaknesses by strand<br/>
+&nbsp;&nbsp;&nbsp; 2️⃣ &nbsp; <b>Progress Report</b> – shows improvement over time<br/>
+&nbsp;&nbsp;&nbsp; 3️⃣ &nbsp; <b>Feedback Report</b> – gives detailed feedback for incorrect answers<br/>
+
+## 🚀 Overview
+
+This project demonstrates:
+
+* ✅ Clean, maintainable Laravel 12 code
+* 🧩 Use of the Strategy Pattern for extensibility
+* 🗂️ JSON-based in-memory data (no database)
+* 🧪 Automated testing with Pest
+* ⚙️ Continuous Integration via GitHub Actions
+* 🐳 Optional setup via Docker Compose<br/>
+
+## 🏗️ Architecture
+```
+app/
+ ├── Console/Commands/GenerateReportCommand.php       # CLI entry point
+ ├── Reports/
+ │    ├── ReportStrategy.php                          # Strategy interface
+ │    ├── DiagnosticReport.php                        # Strategy 1
+ │    ├── ProgressReport.php                          # Strategy 2
+ │    └── FeedbackReport.php                          # Strategy 3
+ ├── Services/
+ │    ├── DataLoader.php                              # Loads JSON files
+ │    └── DateFormatter.php                           # Formats dates
+data/
+ ├── students.json
+ ├── questions.json
+ ├── assessments.json
+ └── student-responses.json
+deployment/
+ ├── Dockerfile
+ └── docker-compose.yml
+tests/
+ ├── Feature/Reports/…                                # Pest feature tests
+ └── Unit/DateFormatterTest.php
+```
+
+## 🧩 Design Pattern
+The app uses the Strategy Pattern, allowing new report types to be added easily
+without modifying existing logic. Each report implements the `ReportStrategy` interface
+and is resolved dynamically via the CLI command.
+
+## 🧰 Technology Stack
+<p align="left">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=php,laravel,githubactions,docker" />
+  </a>
 </p>
 
-## About Laravel
+## ⚙️ Manual Setup (Local)
+1. Clone the repository<br/>
+```
+git clone https://github.com/dlakmalb/52707485-3feb-47cf-aef2-9e33e6f70257.git
+cd 52707485-3feb-47cf-aef2-9e33e6f70257
+```
+2. Install dependencies<br/>
+```
+composer install
+```
+3. Environment setup<br/>
+```
+cp .env.example .env
+php artisan key:generate
+```
+4. Run tests<br/>
+```
+vendor/bin/pest
+```
+5. Generate reports <br/>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Run the Artisan command directly<br/>
+```
+# Diagnostic report
+php artisan reports:generate student1 1
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# Progress report
+php artisan reports:generate student1 2
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+# Feedback report
+php artisan reports:generate student1 3
+```
+You can also run interactively:
+```
+php artisan reports:generate
+> Student ID: student1
+> Report to generate (1 for Diagnostic, 2 for Progress, 3 for Feedback): 1
+```
 
-## Learning Laravel
+## 🐳 Setup Using Docker
+1. Build and start containers
+```
+docker compose -f deployment/docker-compose.yml build
+``` 
+2. Run the application
+```
+docker compose -f deployment/docker-compose.yml run --rm app php artisan reports:generate student1 1
+```
+3. Run tests
+```
+docker compose -f deployment/docker-compose.yml run --rm test
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🧪 Automated Testing
+The project uses Pest with Laravel’s TestCase.<br/>
+Tests cover:
+* ✅ DateFormatter service
+* ✅ All three report strategies (Diagnostic, Progress, Feedback)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Common commands
+```
+# Run all tests
+vendor/bin/pest
 
-## Laravel Sponsors
+# Run only feature tests
+vendor/bin/pest tests/Feature
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Run only unit tests
+vendor/bin/pest tests/Unit
 
-### Premium Partners
+# Run only one test file
+vendor/bin/pest tests/Feature/Reports/FeedbackReportTest.php
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```
 
-## Contributing
+## 🧾 Sample Outputs
+🩺 Diagnostic Report
+```
+Tony Stark recently completed Numeracy assessment on 16th December 2021 10:46 AM
+He got 15 questions right out of 16. Details by strand given below:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Number and Algebra: 5 out of 5 correct
+Measurement and Geometry: 7 out of 7 correct
+Statistics and Probability: 3 out of 4 correct
+```
 
-## Code of Conduct
+📈 Progress Report
+```
+Tony Stark has completed Numeracy assessment 3 times in total. Date and raw score given below:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Date: 14th December 2019, Raw Score: 6 out of 16
+Date: 14th December 2020, Raw Score: 10 out of 16
+Date: 14th December 2021, Raw Score: 15 out of 16
 
-## Security Vulnerabilities
+Tony Stark got 9 more correct in the recent completed assessment than the oldest
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+💬 Feedback Report
+```
+Tony Stark recently completed Numeracy assessment on 16th December 2021 10:46 AM
+He got 15 questions right out of 16. Feedback for wrong answers given below
 
-## License
+Question: What is the 'median' of the following group of numbers 5, 21, 7, 18, 9?
+Your answer: A with value 7
+Right answer: B with value 9
+Hint: You must first arrange the numbers in ascending order. The median is the middle term, which in this case is 9
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🧱 CI/CD Integration
+GitHub Actions pipeline automatically:
+1. Installs dependencies
+2. Runs Pint style checks
+3. Sets up environment
+4. Executes Pest tests
+5. Marks PRs as ✅ Passed or ❌ Failed
+
+Workflow: .github/workflows/ci.yml
+
+## ⚙️ Technical Notes
+* Raw scores are recomputed from student responses (not from JSON rawScore)
+* All data resides in `/data`
+* Dates are formatted using Carbon::translatedFormat('jS F Y h:i A') (16th December 2021, 10:46 AM)
+* Only completed assessments (those with a completed date) are included in reports.
+* Assumption: each student has at least one completed assessment. Incomplete assessments are ignored automatically.
