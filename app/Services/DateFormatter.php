@@ -23,8 +23,10 @@ class DateFormatter
     /**
      * Human readable format: "16th December 2021 10:46 AM".
      */
-    public function humanReadableFormat(string $dateTime): string
+    public function humanReadableFormat(string $dateTime, bool $includeTime = true): string
     {
-        return $this->parse($dateTime)->translatedFormat('jS F Y h:i A');
+        $format = $includeTime ? 'jS F Y h:i A' : 'jS F Y';
+
+        return $this->parse($dateTime)->translatedFormat($format);
     }
 }

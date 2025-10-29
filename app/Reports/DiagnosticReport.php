@@ -10,9 +10,9 @@ class DiagnosticReport implements ReportStrategy
 
     public function build(array $student, array $questions, array $assessments, array $responses): string
     {
-        $latestAttempt = $this->latestCompletedAttempt((string) $student['id'], $responses);
+        $latestCompletedAttempt = $this->latestCompletedAttempt((string) $student['id'], $responses);
 
-        if (! $latestAttempt) {
+        if (! $latestCompletedAttempt) {
             return "No completed assessments found for student '{$student['id']}'.";
         }
 
@@ -21,10 +21,10 @@ class DiagnosticReport implements ReportStrategy
         $assessmentsById = collect($assessments)->keyBy('id')->all();
 
         $studentName = $this->formatStudentName($student);
-        $assessmentName = $assessmentsById[$latestAttempt['assessmentId']]['name'] ?? $latestAttempt['assessmentId'];
-        $completedAt = $this->dateFormatter->humanReadableFormat($latestAttempt['completed']);
+        $assessmentName = $assessmentsById[$latestCompletedAttempt['assessmentId']]['name'] ?? $latestCompletedAttempt['assessmentId'];
+        $completedAt = $this->dateFormatter->humanReadableFormat($latestCompletedAttempt['completed']);
 
-        [$correct, $total, $byStrand] = $this->evaluateAttempt($latestAttempt, $questionsById);
+        [$correct, $total, $byStrand] = $this->evaluateAttempt($latestCompletedAttempt, $questionsById);
 
         $lines = [];
         $lines[] = "{$studentName} recently completed {$assessmentName} assessment on {$completedAt}";
@@ -39,14 +39,8 @@ class DiagnosticReport implements ReportStrategy
 
     private function latestCompletedAttempt(string $studentId, array $responses): ?array
     {
-        $completedResponses = collect($responses)
-            ->filter(fn ($r) => $r['student']['id'] === $studentId && ! empty($r['completed']));
-
-        if ($completedResponses->isEmpty()) {
-            return null;
-        }
-
-        return $completedResponses
+        return collect($responses)
+            ->filter(fn ($r) => $r['student']['id'] === $studentId && ! empty($r['completed']))
             ->sortByDesc(fn ($r) => $this->dateFormatter->parse($r['completed'])->timestamp)
             ->first();
     }
