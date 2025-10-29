@@ -102,12 +102,16 @@ php artisan reports:generate
 1. Build and start containers
 ```
 docker compose -f deployment/docker-compose.yml build
-``` 
-2. Run the application
+```
+2. Install dependencies
+```
+docker compose -f deployment/docker-compose.yml run --rm composer
+```   
+3. Run the application
 ```
 docker compose -f deployment/docker-compose.yml run --rm app php artisan reports:generate student1 1
 ```
-3. Run tests
+4. Run tests
 ```
 docker compose -f deployment/docker-compose.yml run --rm test
 ```
