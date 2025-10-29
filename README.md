@@ -1,6 +1,6 @@
 <div align="center">
     <h1>
-        🧠 Assessment Reporting System<br/>
+        📊 Assessment Reporting System<br/>
         <sub><sup><sub>A simple CLI-based Laravel application for generating student assessment reports.</sub></sup></sub><br/>
     </h1>
 </div>
