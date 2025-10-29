@@ -51,4 +51,4 @@ jobs:
           php artisan key:generate
 
       - name: Run tests (Pest)
-        run: vendor/bin/pest -q
+        run: vendor/bin/pest -vvv --colors=always
